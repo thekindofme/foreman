@@ -139,9 +139,30 @@ private ######################################################################
   def procfile
     case
       when options[:procfile] then options[:procfile]
-      when options[:root]     then File.expand_path(File.join(options[:root], "Procfile"))
-      else "Procfile"
+      when options[:root]     then File.expand_path(File.join(options[:root], procfile_name))
+      else procfile_name
     end
+  end
+
+  def procfile_name
+    if is_development? && development_procfile_exists?
+      "Procfile.dev"
+    else
+      "Procfile"
+    end
+  end
+
+  def is_development?
+    engine.env["RACK_ENV"] == "development"
+  end
+
+  def development_procfile_exists?
+    file=case
+          when options[:root]     then File.expand_path(File.join(options[:root], "Procfile.dev"))
+          else "Procfile.dev"
+         end
+
+    File.exist? file
   end
 
   def options
